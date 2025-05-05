@@ -9,6 +9,15 @@
     body {
       background: linear-gradient(to bottom right, #dbeafe, #fef9c3);
     }
+    #chatWidget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+    }
+    #chatBox {
+      display: none;
+    }
   </style>
 </head>
 <body class="font-sans text-gray-800">
@@ -49,14 +58,6 @@
     <!-- Right Column -->
     <div class="space-y-6">
       <section class="bg-white p-5 rounded-lg shadow">
-        <h2 class="text-2xl font-bold mb-4">🤖 Emergency Assistant</h2>
-        <p class="mb-3 text-sm">Need first-aid advice or emergency tips? Tap below:</p>
-        <a href="https://chat.openai.com/" target="_blank" class="inline-block">
-          <img src="https://img.icons8.com/color/48/000000/chatgpt.png" alt="ChatGPT Icon" class="w-10 h-10"/>
-        </a>
-      </section>
-
-      <section class="bg-white p-5 rounded-lg shadow">
         <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
         <ul class="list-disc pl-6 space-y-2 text-gray-700 text-sm">
           <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
@@ -77,6 +78,23 @@
     </div>
   </main>
 
+  <!-- Floating Chat Widget -->
+  <div id="chatWidget">
+    <button onclick="toggleChat()" class="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700">
+      💬
+    </button>
+    <div id="chatBox" class="bg-white w-72 h-80 mt-2 rounded shadow-lg p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-sm">Emergency Assistant</h3>
+        <button onclick="toggleChat()" class="text-red-600 text-xs">✖</button>
+      </div>
+      <p class="text-sm mb-2">For now, tap the button below to open ChatGPT in a new tab:</p>
+      <a href="https://chat.openai.com/" target="_blank" class="inline-block bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
+        Go to ChatGPT
+      </a>
+    </div>
+  </div>
+
   <footer class="text-center text-xs text-gray-600 py-6 mt-10">
     Made with ☕ by G | A free community resource | 🇵🇭 Stay safe, stay prepared.
   </footer>
@@ -87,6 +105,11 @@
       const mapSrc = `https://www.google.com/maps?q=hospitals+near+${city}&output=embed`;
       document.getElementById("mapFrame").src = mapSrc;
     });
+
+    function toggleChat() {
+      const box = document.getElementById("chatBox");
+      box.style.display = box.style.display === "none" || box.style.display === "" ? "block" : "none";
+    }
   </script>
 </body>
 </html>
