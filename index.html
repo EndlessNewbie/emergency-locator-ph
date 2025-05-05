@@ -17,61 +17,64 @@
     <p class="text-sm mt-1">Your quick-access guide to help, wherever you are in the Philippines.</p>
   </header>
 
-  <main class="p-6 max-w-3xl mx-auto">
-    <section class="mb-10 bg-white p-5 rounded-lg shadow">
-      <h2 class="text-2xl font-bold mb-4">📞 Emergency Hotlines</h2>
-      <ul class="list-disc pl-6 space-y-1 text-gray-700">
-        <li><strong>911</strong> – National Emergency</li>
-        <li><strong>143</strong> – Philippine Red Cross</li>
-        <li><strong>(02) 894-26843</strong> – PNP</li>
-        <li><strong>(02) 8722-0650</strong> – Bureau of Fire Protection</li>
-        <li><strong>117</strong> – NDRRMC</li>
-      </ul>
-    </section>
+  <main class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Left Column -->
+    <div class="col-span-2 space-y-6">
+      <section class="bg-white p-5 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">📞 Emergency Hotlines</h2>
+        <ul class="list-disc pl-6 space-y-1 text-gray-700">
+          <li><strong>911</strong> – National Emergency</li>
+          <li><strong>143</strong> – Philippine Red Cross</li>
+          <li><strong>(02) 894-26843</strong> – PNP</li>
+          <li><strong>(02) 8722-0650</strong> – Bureau of Fire Protection</li>
+          <li><strong>117</strong> – NDRRMC</li>
+        </ul>
+      </section>
 
-    <section class="mb-10 bg-white p-5 rounded-lg shadow">
-      <h2 class="text-2xl font-bold mb-4">🏥 Nearest Clinics & Hospitals</h2>
-      <label class="block mb-2 text-sm font-medium text-gray-700">Choose your location:</label>
-      <select id="locationSelect" class="w-full p-2 border rounded mb-4">
-        <option value="manila">Manila</option>
-        <option value="cebu">Cebu</option>
-        <option value="davao">Davao</option>
-        <option value="baguio">Baguio</option>
-        <option value="iloilo">Iloilo</option>
-      </select>
-      <a id="hospitalLink" href="https://www.google.com/maps/search/hospitals+near+manila" target="_blank"
-         class="inline-block bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700">
-        Open Map
-      </a>
-    </section>
+      <section class="bg-white p-5 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">🏥 Nearest Clinics & Hospitals</h2>
+        <label class="block mb-2 text-sm font-medium text-gray-700">Choose your location:</label>
+        <select id="locationSelect" class="w-full p-2 border rounded mb-4">
+          <option value="manila">Manila</option>
+          <option value="cebu">Cebu</option>
+          <option value="davao">Davao</option>
+          <option value="baguio">Baguio</option>
+          <option value="iloilo">Iloilo</option>
+        </select>
+        <iframe id="mapFrame" class="w-full h-64 rounded border" loading="lazy"
+                src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
+      </section>
+    </div>
 
-    <section class="mb-10 bg-white p-5 rounded-lg shadow">
-      <h2 class="text-2xl font-bold mb-4">🤖 Emergency Assistant</h2>
-      <p class="mb-3">Need first-aid advice or emergency tips? Ask ChatGPT for help:</p>
-      <a href="https://chat.openai.com/" target="_blank"
-         class="inline-block bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700">
-        Ask ChatGPT
-      </a>
-    </section>
+    <!-- Right Column -->
+    <div class="space-y-6">
+      <section class="bg-white p-5 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">🤖 Emergency Assistant</h2>
+        <p class="mb-3 text-sm">Need first-aid advice or emergency tips? Tap below:</p>
+        <a href="https://chat.openai.com/" target="_blank" class="inline-block">
+          <img src="https://img.icons8.com/color/48/000000/chatgpt.png" alt="ChatGPT Icon" class="w-10 h-10"/>
+        </a>
+      </section>
 
-    <section class="mb-10 bg-white p-5 rounded-lg shadow">
-      <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
-      <ul class="list-disc pl-6 space-y-2 text-gray-700">
-        <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
-        <li><strong>Flood:</strong> Move to higher ground immediately. Avoid walking/driving through floodwaters.</li>
-        <li><strong>Fire:</strong> Stop, Drop, and Roll if clothes catch fire. Exit building calmly.</li>
-        <li><strong>Typhoon:</strong> Secure loose items, stock food/water, and monitor weather alerts.</li>
-      </ul>
-    </section>
+      <section class="bg-white p-5 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
+        <ul class="list-disc pl-6 space-y-2 text-gray-700 text-sm">
+          <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
+          <li><strong>Flood:</strong> Move to higher ground immediately. Avoid walking/driving through floodwaters.</li>
+          <li><strong>Fire:</strong> Stop, Drop, and Roll if clothes catch fire. Exit building calmly.</li>
+          <li><strong>Typhoon:</strong> Secure loose items, stock food/water, and monitor weather alerts.</li>
+        </ul>
+      </section>
 
-    <section class="bg-white p-5 rounded-lg shadow">
-      <h2 class="text-2xl font-bold mb-4">📄 Offline Resources</h2>
-      <p class="mb-2">Need to save info just in case? Download printable versions:</p>
-      <ul class="list-disc pl-6 text-blue-600">
-        <li><a href="#" class="hover:underline">Emergency Numbers PDF (coming soon)</a></li>
-        <li><a href="#" class="hover:underline">Disaster Prep Checklist PDF (coming soon)</a></li>
-      </ul>
-    </section>
+      <section class="bg-white p-5 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">📄 Offline Resources</h2>
+        <p class="mb-2 text-sm">Download printable versions:</p>
+        <ul class="list-disc pl-6 text-blue-600 text-sm">
+          <li><a href="#" class="hover:underline">Emergency Numbers PDF (coming soon)</a></li>
+          <li><a href="#" class="hover:underline">Disaster Prep Checklist PDF (coming soon)</a></li>
+        </ul>
+      </section>
+    </div>
   </main>
 
   <footer class="text-center text-xs text-gray-600 py-6 mt-10">
@@ -81,8 +84,8 @@
   <script>
     document.getElementById("locationSelect").addEventListener("change", function () {
       const city = this.value;
-      const link = `https://www.google.com/maps/search/hospitals+near+${city}`;
-      document.getElementById("hospitalLink").href = link;
+      const mapSrc = `https://www.google.com/maps?q=hospitals+near+${city}&output=embed`;
+      document.getElementById("mapFrame").src = mapSrc;
     });
   </script>
 </body>
