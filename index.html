@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition duration-300">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PH Emergency Finder</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(to bottom right, #dbeafe, #fef9c3);
+      transition: background 0.5s ease-in-out;
+      opacity: 0;
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+    .dark body {
+      background: #1f2937;
     }
     #chatWidget {
       position: fixed;
@@ -18,20 +29,32 @@
     #chatBox {
       display: none;
     }
+    .neomorph {
+      background: #e0e0e0;
+      border-radius: 20px;
+      box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+    }
+    .dark .neomorph {
+      background: #2d2d2d;
+      box-shadow: 8px 8px 16px #1f1f1f, -8px -8px 16px #3b3b3b;
+    }
   </style>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </head>
-<body class="font-sans text-gray-800">
-  <header class="bg-red-600 text-white text-center py-6 shadow-lg">
+<body class="font-sans text-gray-800 dark:text-gray-100 dark:bg-gray-900">
+  <header class="bg-red-600 text-white text-center py-6 shadow-lg animate-fadeInDown">
     <h1 class="text-3xl font-extrabold tracking-wide">🚨 PH Emergency Finder</h1>
     <p class="text-sm mt-1">Your quick-access guide to help, wherever you are in the Philippines.</p>
+    <button onclick="toggleMode()" class="absolute top-4 right-6 bg-white text-red-600 p-2 rounded-full shadow transition transform hover:scale-110">
+      <i id="modeIcon" class="ri-moon-fill text-xl"></i>
+    </button>
   </header>
 
-  <main class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Left Column -->
+  <main class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp">
     <div class="col-span-2 space-y-6">
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <h2 class="text-2xl font-bold mb-4">📞 Emergency Hotlines</h2>
-        <ul class="list-disc pl-6 space-y-1 text-gray-700">
+        <ul class="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-200">
           <li><strong>911</strong> – National Emergency</li>
           <li><strong>143</strong> – Philippine Red Cross</li>
           <li><strong>(02) 894-26843</strong> – PNP</li>
@@ -40,42 +63,40 @@
         </ul>
       </section>
 
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <h2 class="text-2xl font-bold mb-4">🏥 Nearest Clinics & Hospitals</h2>
-        <label class="block mb-2 text-sm font-medium text-gray-700">Choose your location:</label>
-        <select id="locationSelect" class="w-full p-2 border rounded mb-4">
+        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">Choose your location:</label>
+        <select id="locationSelect" class="w-full p-2 border rounded mb-4 dark:bg-gray-700 dark:text-white">
           <option value="manila">Manila</option>
           <option value="cebu">Cebu</option>
           <option value="davao">Davao</option>
           <option value="baguio">Baguio</option>
           <option value="iloilo">Iloilo</option>
         </select>
-        <iframe id="mapFrame" class="w-full h-64 rounded border" loading="lazy"
-                src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
+        <iframe id="mapFrame" class="w-full h-64 rounded border" loading="lazy" src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
       </section>
     </div>
 
-    <!-- Right Column -->
     <div class="space-y-6">
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xl font-bold">MMDA Latest Tweet</h2>
           <a href="https://twitter.com/MMDA" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
         </div>
-        <blockquote class="twitter-tweet"><a href="https://twitter.com/MMDA?ref_src=twsrc%5Etfw">Tweets by MMDA</a></blockquote>
+        <a class="twitter-timeline" data-tweet-limit="1" href="https://twitter.com/MMDA?ref_src=twsrc%5Etfw">Tweets by MMDA</a>
       </section>
 
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xl font-bold">NDRRMC Latest Tweet</h2>
           <a href="https://twitter.com/NDRRMC_OpCen" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
         </div>
-        <blockquote class="twitter-tweet"><a href="https://twitter.com/NDRRMC_OpCen?ref_src=twsrc%5Etfw">Tweets by NDRRMC_OpCen</a></blockquote>
+        <a class="twitter-timeline" data-tweet-limit="1" href="https://twitter.com/NDRRMC_OpCen?ref_src=twsrc%5Etfw">Tweets by NDRRMC_OpCen</a>
       </section>
 
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
-        <ul class="list-disc pl-6 space-y-2 text-gray-700 text-sm">
+        <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-200 text-sm">
           <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
           <li><strong>Flood:</strong> Move to higher ground immediately. Avoid walking/driving through floodwaters.</li>
           <li><strong>Fire:</strong> Stop, Drop, and Roll if clothes catch fire. Exit building calmly.</li>
@@ -83,7 +104,7 @@
         </ul>
       </section>
 
-      <section class="bg-white p-5 rounded-lg shadow">
+      <section class="neomorph p-5">
         <h2 class="text-2xl font-bold mb-4">📄 Offline Resources</h2>
         <p class="mb-2 text-sm">Download printable versions:</p>
         <ul class="list-disc pl-6 text-blue-600 text-sm">
@@ -94,38 +115,47 @@
     </div>
   </main>
 
-  <!-- Floating Chat Widget -->
-  <div id="chatWidget">
-    <button onclick="toggleChat()" class="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700">
-      💬
-    </button>
-    <div id="chatBox" class="bg-white w-72 h-80 mt-2 rounded shadow-lg p-4">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-bold text-sm">Emergency Assistant</h3>
-        <button onclick="toggleChat()" class="text-red-600 text-xs">✖</button>
-      </div>
-      <p class="text-sm mb-2">For now, tap the button below to open ChatGPT in a new tab:</p>
-      <a href="https://chat.openai.com/" target="_blank" class="inline-block bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
-        Go to ChatGPT
-      </a>
-    </div>
-  </div>
-
-  <footer class="text-center text-xs text-gray-600 py-6 mt-10">
-    Made with ☕ by G | A free community resource | 🇵🇭 Stay safe, stay prepared.
-  </footer>
-
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   <script>
-    document.getElementById("locationSelect").addEventListener("change", function () {
-      const city = this.value;
-      const mapSrc = `https://www.google.com/maps?q=hospitals+near+${city}&output=embed`;
-      document.getElementById("mapFrame").src = mapSrc;
+    function setBackgroundByTime() {
+      const hour = new Date().getHours();
+      const body = document.body;
+      if (document.documentElement.classList.contains('dark')) return;
+      if (hour >= 5 && hour < 8) {
+        body.style.background = 'linear-gradient(to bottom right, #fde68a, #fef3c7)';
+      } else if (hour >= 8 && hour < 12) {
+        body.style.background = 'linear-gradient(to bottom right, #dbeafe, #fef9c3)';
+      } else if (hour >= 12 && hour < 15) {
+        body.style.background = 'linear-gradient(to bottom right, #fee2e2, #fde68a)';
+      } else if (hour >= 15 && hour < 18) {
+        body.style.background = 'linear-gradient(to bottom right, #fcd34d, #fbbf24)';
+      } else if (hour >= 18 && hour < 20) {
+        body.style.background = 'linear-gradient(to bottom right, #c7d2fe, #f3e8ff)';
+      } else {
+        body.style.background = 'linear-gradient(to bottom right, #1e3a8a, #000000)';
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const locSelect = document.getElementById("locationSelect");
+      if (locSelect) {
+        locSelect.addEventListener("change", function () {
+          const city = this.value;
+          const mapSrc = `https://www.google.com/maps?q=hospitals+near+${city}&output=embed`;
+          document.getElementById("mapFrame").src = mapSrc;
+        });
+      }
+      setBackgroundByTime();
     });
 
-    function toggleChat() {
-      const box = document.getElementById("chatBox");
-      box.style.display = box.style.display === "none" || box.style.display === "" ? "block" : "none";
+    function toggleMode() {
+      const root = document.documentElement;
+      const icon = document.getElementById("modeIcon");
+      root.classList.toggle("dark");
+      if (root.classList.contains("dark")) {
+        icon.classList.replace("ri-moon-fill", "ri-sun-fill");
+      } else {
+        icon.classList.replace("ri-sun-fill", "ri-moon-fill");
+      }
     }
   </script>
 </body>
