@@ -29,32 +29,36 @@
     #chatBox {
       display: none;
     }
-    .neomorph {
-      background: #e0e0e0;
+    .glassmorph {
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 20px;
-      box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #0f172a;
     }
-    .dark .neomorph {
-      background: #2d2d2d;
-      box-shadow: 8px 8px 16px #1f1f1f, -8px -8px 16px #3b3b3b;
+    .dark .glassmorph {
+      background: rgba(30, 41, 59, 0.4);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
   </style>
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </head>
-<body class="font-sans text-gray-800 dark:text-gray-100 dark:bg-gray-900">
-  <header class="bg-red-600 text-white text-center py-6 shadow-lg animate-fadeInDown">
+<body class="font-sans text-slate-900 dark:text-slate-100 dark:bg-slate-900">
+  <header class="bg-blue-600 text-white text-center py-6 shadow-lg animate-fadeInDown">
     <h1 class="text-3xl font-extrabold tracking-wide">🚨 PH Emergency Finder</h1>
     <p class="text-sm mt-1">Your quick-access guide to help, wherever you are in the Philippines.</p>
-    <button onclick="toggleMode()" class="absolute top-4 right-6 bg-white text-red-600 p-2 rounded-full shadow transition transform hover:scale-110">
+    <button onclick="toggleMode()" class="absolute top-4 right-6 bg-white text-blue-600 p-2 rounded-full shadow transition transform hover:scale-110">
       <i id="modeIcon" class="ri-moon-fill text-xl"></i>
     </button>
   </header>
 
   <main class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp">
     <div class="col-span-2 space-y-6">
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <h2 class="text-2xl font-bold mb-4">📞 Emergency Hotlines</h2>
-        <ul class="list-disc pl-6 space-y-1 text-gray-700 dark:text-gray-200">
+        <ul class="list-disc pl-6 space-y-1">
           <li><strong>911</strong> – National Emergency</li>
           <li><strong>143</strong> – Philippine Red Cross</li>
           <li><strong>(02) 894-26843</strong> – PNP</li>
@@ -63,10 +67,10 @@
         </ul>
       </section>
 
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <h2 class="text-2xl font-bold mb-4">🏥 Nearest Clinics & Hospitals</h2>
-        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-200">Choose your location:</label>
-        <select id="locationSelect" class="w-full p-2 border rounded mb-4 dark:bg-gray-700 dark:text-white">
+        <label class="block mb-2 text-sm font-medium">Choose your location:</label>
+        <select id="locationSelect" class="w-full p-2 border rounded mb-4 dark:bg-slate-800 dark:text-white">
           <option value="manila">Manila</option>
           <option value="cebu">Cebu</option>
           <option value="davao">Davao</option>
@@ -78,7 +82,7 @@
     </div>
 
     <div class="space-y-6">
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xl font-bold">MMDA Latest Tweet</h2>
           <a href="https://twitter.com/MMDA" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
@@ -86,7 +90,7 @@
         <a class="twitter-timeline" data-tweet-limit="1" href="https://twitter.com/MMDA?ref_src=twsrc%5Etfw">Tweets by MMDA</a>
       </section>
 
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-xl font-bold">NDRRMC Latest Tweet</h2>
           <a href="https://twitter.com/NDRRMC_OpCen" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
@@ -94,9 +98,9 @@
         <a class="twitter-timeline" data-tweet-limit="1" href="https://twitter.com/NDRRMC_OpCen?ref_src=twsrc%5Etfw">Tweets by NDRRMC_OpCen</a>
       </section>
 
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
-        <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-200 text-sm">
+        <ul class="list-disc pl-6 space-y-2 text-sm">
           <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
           <li><strong>Flood:</strong> Move to higher ground immediately. Avoid walking/driving through floodwaters.</li>
           <li><strong>Fire:</strong> Stop, Drop, and Roll if clothes catch fire. Exit building calmly.</li>
@@ -104,7 +108,7 @@
         </ul>
       </section>
 
-      <section class="neomorph p-5">
+      <section class="glassmorph p-5">
         <h2 class="text-2xl font-bold mb-4">📄 Offline Resources</h2>
         <p class="mb-2 text-sm">Download printable versions:</p>
         <ul class="list-disc pl-6 text-blue-600 text-sm">
@@ -121,21 +125,34 @@
       const body = document.body;
       if (document.documentElement.classList.contains('dark')) return;
       if (hour >= 5 && hour < 8) {
-        body.style.background = 'linear-gradient(to bottom right, #fde68a, #fef3c7)';
+        body.style.background = 'linear-gradient(to bottom right, #cbd5e1, #f1f5f9)';
       } else if (hour >= 8 && hour < 12) {
-        body.style.background = 'linear-gradient(to bottom right, #dbeafe, #fef9c3)';
+        body.style.background = 'linear-gradient(to bottom right, #bfdbfe, #e0f2fe)';
       } else if (hour >= 12 && hour < 15) {
-        body.style.background = 'linear-gradient(to bottom right, #fee2e2, #fde68a)';
+        body.style.background = 'linear-gradient(to bottom right, #93c5fd, #bae6fd)';
       } else if (hour >= 15 && hour < 18) {
-        body.style.background = 'linear-gradient(to bottom right, #fcd34d, #fbbf24)';
+        body.style.background = 'linear-gradient(to bottom right, #60a5fa, #93c5fd)';
       } else if (hour >= 18 && hour < 20) {
-        body.style.background = 'linear-gradient(to bottom right, #c7d2fe, #f3e8ff)';
+        body.style.background = 'linear-gradient(to bottom right, #3b82f6, #1e40af)';
       } else {
-        body.style.background = 'linear-gradient(to bottom right, #1e3a8a, #000000)';
+        body.style.background = 'linear-gradient(to bottom right, #1e3a8a, #0f172a)';
       }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const mapSrc = `https://www.google.com/maps?q=hospitals+near+${latitude},${longitude}&output=embed`;
+            document.getElementById("mapFrame").src = mapSrc;
+          },
+          (error) => {
+            console.warn("Geolocation permission denied or unavailable.");
+          }
+        );
+      }
+
       const locSelect = document.getElementById("locationSelect");
       if (locSelect) {
         locSelect.addEventListener("change", function () {
