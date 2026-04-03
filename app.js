@@ -1,7 +1,28 @@
 let lastTrafficAlert = false;
 let lastWeatherAlert = false;
+let lastFeedItems = [];
+let lastAlertTime = 0;
 
-/* SPEAK */
+/* =========================
+   UTIL
+========================= */
+function getEl(id){ return document.getElementById(id); }
+
+/* =========================
+   SOUND (Jarvis beep)
+========================= */
+function playBeep(){
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  osc.frequency.value = 880;
+  osc.connect(ctx.destination);
+  osc.start();
+  setTimeout(()=>osc.stop(),100);
+}
+
+/* =========================
+   SPEAK
+========================= */
 function speak(text){
   if(!window.speechSynthesis) return;
   const msg = new SpeechSynthesisUtterance(text);
@@ -10,8 +31,38 @@ function speak(text){
   window.speechSynthesis.speak(msg);
 }
 
-/* ALERT */
-function triggerAlert(msg){
+/* =========================
+   JARVIS OUTPUT (typing)
+========================= */
+function jarvisSay(text){
+  const el = getEl("output");
+  if(!el) return;
+
+  el.innerText = "";
+  let i=0;
+
+  function type(){
+    if(i < text.length){
+      el.innerText += text[i];
+      i++;
+      setTimeout(type,20);
+    }
+  }
+
+  type();
+  speak(text);
+}
+
+/* =========================
+   ALERT SYSTEM
+========================= */
+function triggerAlert(msg, type="info"){
+
+  const now = Date.now();
+  if(now - lastAlertTime < 4000) return;
+  lastAlertTime = now;
+
+  playBeep();
 
   // popup
   const div = document.createElement("div");
@@ -20,22 +71,23 @@ function triggerAlert(msg){
   document.body.appendChild(div);
   setTimeout(()=>div.remove(),4000);
 
-  // log panel
+  // log
   const log = getEl("alertLog");
   if(log){
     const entry = document.createElement("div");
+
+    if(type === "critical") entry.style.color = "#ef4444";
+    else if(type === "warning") entry.style.color = "#facc15";
+    else entry.style.color = "#22c55e";
+
     entry.innerText = "• " + msg;
     log.prepend(entry);
   }
-}
 
-/* SAFE GET */
-function getEl(id){
-  return document.getElementById(id);
 }
 
 /* =========================
-   TRAFFIC ENGINE
+   TRAFFIC
 ========================= */
 function updateTraffic(){
 
@@ -46,21 +98,15 @@ function updateTraffic(){
 
   const hour = new Date().getHours();
 
-  let congestion, speed, distance, jams;
+  let congestion = (hour >=7 && hour<=9 || hour>=17 && hour<=19)
+    ? 80 + Math.random()*20
+    : 30 + Math.random()*40;
 
-  if((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)){
-    congestion = 80 + Math.floor(Math.random()*20);
-    speed = 10 + Math.random()*10;
-    distance = 3 + Math.random()*2;
-    jams = 40 + Math.floor(Math.random()*20);
-  } else {
-    congestion = 30 + Math.floor(Math.random()*40);
-    speed = 20 + Math.random()*15;
-    distance = 5 + Math.random()*3;
-    jams = 10 + Math.floor(Math.random()*20);
-  }
+  const speed = 30 - congestion*0.2;
+  const distance = 7 - congestion*0.05;
+  const jams = Math.floor(congestion/2);
 
-  getEl("congestion").innerText = congestion + "%";
+  getEl("congestion").innerText = Math.floor(congestion)+"%";
   getEl("speed").innerText = speed.toFixed(1);
   getEl("distance").innerText = distance.toFixed(1);
   getEl("jams").innerText = jams;
@@ -84,79 +130,20 @@ function updateTraffic(){
     label.innerText = "Heavy congestion";
 
     if(!lastTrafficAlert){
-      triggerAlert("Heavy congestion detected");
-      speak("Heavy congestion detected in your area");
+      triggerAlert("Heavy congestion detected","warning");
+      jarvisSay("Heavy congestion detected. Consider alternate routes.");
       lastTrafficAlert = true;
     }
   }
 }
 
 /* =========================
-   VOICE
-========================= */
-function startListening(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if(!SpeechRecognition){
-    triggerAlert("Voice not supported in this browser");
-    return;
-  }
-
-  const rec = new SpeechRecognition();
-  rec.lang = "en-US";
-  rec.start();
-
-  rec.onresult = e=>{
-    const cmd = e.results[0][0].transcript.toLowerCase();
-    handle(cmd);
-  };
-}
-
-/* =========================
-   COMMANDS
-========================= */
-function handle(cmd){
-  let res="Command not recognized";
-
-  if(cmd.includes("hospital")){
-    res="Searching hospitals";
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const {latitude, longitude} = pos.coords;
-      getEl("mapFrame").src =
-        `https://www.google.com/maps?q=hospitals+near+${latitude},${longitude}&output=embed`;
-    });
-  }
-
-  else if(cmd.includes("police")){
-    res="Locating police stations";
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const {latitude, longitude} = pos.coords;
-      getEl("mapFrame").src =
-        `https://www.google.com/maps?q=police+near+${latitude},${longitude}&output=embed`;
-    });
-  }
-
-  else if(cmd.includes("fire")){
-    res="Locating fire stations";
-    navigator.geolocation.getCurrentPosition(pos=>{
-      const {latitude, longitude} = pos.coords;
-      getEl("mapFrame").src =
-        `https://www.google.com/maps?q=fire+station+near+${latitude},${longitude}&output=embed`;
-    });
-  }
-
-  getEl("output").innerText = res;
-}
-
-/* =========================
-   WEATHER ENGINE
+   WEATHER
 ========================= */
 function getWeatherIcon(code){
   if(code === 0) return "☀️ Clear";
-  if(code <= 3) return "⛅ Partly cloudy";
-  if(code <= 48) return "🌫 Fog";
+  if(code <= 3) return "⛅ Cloudy";
   if(code <= 67) return "🌧 Rain";
-  if(code <= 77) return "🌨 Snow";
   if(code <= 99) return "⛈ Storm";
   return "🌍 Unknown";
 }
@@ -167,71 +154,119 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121&curren
 .then(res=>res.json())
 .then(data=>{
 
-  if(!data.current_weather){
-    getEl("weather").innerText = "Weather unavailable";
-    return;
-  }
+  if(!data.current_weather) return;
 
   const w = data.current_weather;
-  const condition = getWeatherIcon(w.weathercode);
 
-  const html = `
-    <div>${condition}</div>
-    <div>🌡 Temp: <b>${w.temperature}°C</b></div>
-    <div>💨 Wind: <b>${w.windspeed} km/h</b></div>
+  getEl("weather").innerHTML = `
+    <div>${getWeatherIcon(w.weathercode)}</div>
+    <div>Temp: ${w.temperature}°C</div>
+    <div>Wind: ${w.windspeed} km/h</div>
   `;
 
-  getEl("weather").innerHTML = html;
-
-  /* ALERTS */
   if(w.windspeed > 35 && !lastWeatherAlert){
-    triggerAlert("Strong winds detected");
-    speak("Warning. Strong winds detected");
+    triggerAlert("Strong winds detected","warning");
+    jarvisSay("Strong winds detected. Exercise caution.");
     lastWeatherAlert = true;
   }
 
-  else if(w.weathercode >= 61 && w.weathercode <= 99 && !lastWeatherAlert){
-    triggerAlert("Heavy rain detected");
-    speak("Warning. Heavy rain detected. Possible flooding");
+  if(w.weathercode >= 61 && w.weathercode <= 99 && !lastWeatherAlert){
+    triggerAlert("Heavy rain detected","critical");
+    jarvisSay("Heavy rainfall detected. Possible flooding.");
     lastWeatherAlert = true;
   }
 
-  else if(w.windspeed < 30 && w.weathercode < 60){
+  if(w.windspeed < 30 && w.weathercode < 60){
     lastWeatherAlert = false;
   }
 
-})
-.catch(err=>{
-  console.error("Weather error:", err);
-  getEl("weather").innerText = "Failed to load weather";
 });
-
 }
 
 /* =========================
-   TIPS
+   FEEDS
 ========================= */
-const tips = [
-"Stay alert",
-"Prepare go bag",
-"Monitor weather",
-"Know evacuation routes"
+function monitorFeeds(){
+
+const feeds = [
+ "https://www.gmanetwork.com/news/rss/nation/"
 ];
 
-let tipIndex=0;
-setInterval(()=>{
-  const el = getEl("tips");
-  if(el){
-    el.innerText = tips[tipIndex];
-    tipIndex=(tipIndex+1)%tips.length;
+feeds.forEach(feedUrl=>{
+
+  fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feedUrl))
+  .then(res=>res.json())
+  .then(data=>{
+
+    data.items.slice(0,5).forEach(item=>{
+
+      if(lastFeedItems.includes(item.guid)) return;
+      lastFeedItems.push(item.guid);
+
+      const text = (item.title+" "+item.description).toLowerCase();
+
+      if(text.includes("accident")){
+        triggerAlert("Accident reported","warning");
+        jarvisSay("Accident reported nearby.");
+      }
+
+      if(text.includes("flood")){
+        triggerAlert("Flood warning","critical");
+        jarvisSay("Flood warning detected.");
+      }
+
+      if(text.includes("earthquake")){
+        triggerAlert("Earthquake reported","critical");
+        jarvisSay("Earthquake detected.");
+      }
+
+    });
+
+  });
+
+});
+}
+
+/* =========================
+   VOICE
+========================= */
+function startListening(){
+
+  const wave = getEl("wave");
+  if(wave) wave.classList.remove("hidden");
+
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.start();
+
+  rec.onresult = e=>{
+    if(wave) wave.classList.add("hidden");
+    const cmd = e.results[0][0].transcript.toLowerCase();
+    handle(cmd);
+  };
+}
+
+/* =========================
+   COMMANDS
+========================= */
+function handle(cmd){
+
+  if(cmd.includes("hospital")){
+    jarvisSay("Locating nearest hospitals.");
+    navigator.geolocation.getCurrentPosition(pos=>{
+      getEl("mapFrame").src =
+      `https://www.google.com/maps?q=hospitals+near+${pos.coords.latitude},${pos.coords.longitude}&output=embed`;
+    });
   }
-},3000);
+
+}
 
 /* =========================
    INIT
 ========================= */
 setInterval(updateTraffic,10000);
 setInterval(updateWeather,60000);
+setInterval(monitorFeeds,30000);
 
 updateTraffic();
 updateWeather();
+monitorFeeds();
