@@ -101,10 +101,14 @@ function updateWeather(){
 fetch("https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121&current_weather=true")
 .then(res=>res.json())
 .then(data=>{
-  if(w.windspeed > 30){
-  triggerAlert("Strong winds detected");
-  speak("Warning. Strong winds detected in your area");
-}
+
+  console.log("Weather API response:", data); // 👈 debug
+
+  if(!data.current_weather){
+    document.getElementById("weather").innerText = "Weather data unavailable";
+    return;
+  }
+
   const w = data.current_weather;
 
   const html = `
@@ -115,7 +119,12 @@ fetch("https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121&curren
 
   document.getElementById("weather").innerHTML = html;
 
+})
+.catch(err=>{
+  console.error("Weather fetch error:", err);
+  document.getElementById("weather").innerText = "Failed to load weather data";
 });
+
 }
 
 setInterval(updateWeather, 60000);
