@@ -81,6 +81,15 @@ body::before {
 @keyframes pulse {
   50% { transform: scale(1.1); }
 }
+
+.typing::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
 </style>
 
 </head>
@@ -160,7 +169,7 @@ href="https://twitter.com/NDRRMC_OpCen">
 
 <div class="glass p-4">
 <h2 class="text-cyan-300 mb-2">Detected Alerts</h2>
-<div id="alertLog" class="text-xs space-y-1 max-h-40 overflow-auto">
+<div id="alertLog" class="text-xs space-y-1 max-h-40 overflow-auto"></div>
 No alerts yet
 </div>
 </div>
@@ -200,9 +209,20 @@ Try: "find hospital", "police", "fire"
 
 <!-- JARVIS PANEL -->
 <div class="fixed bottom-24 right-6 glass p-4 w-72">
-<div class="text-xs text-cyan-300">JARVIS</div>
-<div id="output" class="text-sm">System ready.</div>
+  <div class="text-xs text-cyan-300">JARVIS</div>
+
+  <div id="output" class="text-sm typing">
+    System ready.
+  </div>
+
+  <div id="wave" class="flex gap-1 mt-2 hidden">
+    <span class="w-1 h-3 bg-cyan-400 animate-pulse"></span>
+    <span class="w-1 h-5 bg-cyan-400 animate-pulse"></span>
+    <span class="w-1 h-3 bg-cyan-400 animate-pulse"></span>
+  </div>
 </div>
+
+
 
 <!-- ORB -->
 <div class="fixed bottom-6 right-6 flex flex-col items-center">
