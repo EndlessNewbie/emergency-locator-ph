@@ -1,183 +1,219 @@
 <!DOCTYPE html>
 <html lang="en" class="transition duration-300">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PH Emergency Finder</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
-  <style>
-    body {
-      transition: background 0.5s ease-in-out;
-      opacity: 0;
-      animation: fadeIn 1s ease-in-out forwards;
-    }
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-    .dark body {
-      background: #1f2937;
-    }
-    #chatWidget {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 50;
-    }
-    #chatBox {
-      display: none;
-    }
-    .glassmorph {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #0f172a;
-    }
-    .dark .glassmorph {
-      background: rgba(30, 41, 59, 0.4);
-      color: #f1f5f9;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-  </style>
-  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PH Emergency Finder - Jarvis</title>
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* HUD Glow */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,255,255,0.2);
+  box-shadow: 0 0 20px rgba(0,255,255,0.15);
+  border-radius: 16px;
+}
+
+/* Floating hover */
+.float:hover {
+  transform: translateY(-5px);
+  transition: 0.3s;
+}
+
+/* Jarvis Orb */
+#orb {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #22d3ee, #0ea5e9);
+  box-shadow: 0 0 25px #22d3ee, 0 0 60px #0ea5e9;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+}
+
+@keyframes pulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Wave bars */
+.wave {
+  display: flex;
+  gap: 3px;
+  height: 20px;
+  align-items: flex-end;
+}
+
+.wave span {
+  width: 3px;
+  background: #22d3ee;
+  animation: wave 1s infinite ease-in-out;
+}
+
+.wave span:nth-child(2){animation-delay:0.1s}
+.wave span:nth-child(3){animation-delay:0.2s}
+.wave span:nth-child(4){animation-delay:0.3s}
+.wave span:nth-child(5){animation-delay:0.4s}
+
+@keyframes wave {
+  0%,100% { height: 5px; }
+  50% { height: 20px; }
+}
+
+/* Typing effect */
+.typing::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
 </head>
-<body class="bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed bg-cover bg-center font-sans text-slate-900 dark:text-slate-100 dark:bg-slate-900">
-  <header class="bg-blue-600 text-white text-center py-6 shadow-lg animate-fadeInDown">
-    <h1 class="text-3xl font-extrabold tracking-wide">🚨 PH Emergency Finder</h1>
-    <p class="text-sm mt-1">Your quick-access guide to help, wherever you are in the Philippines.</p>
-    <button onclick="toggleMode()" class="absolute top-4 right-6 bg-white text-blue-600 p-2 rounded-full shadow transition transform hover:scale-110">
-      <i id="modeIcon" class="ri-moon-fill text-xl"></i>
-    </button>
-  </header>
 
-  <main class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp">
-    <div class="col-span-2 space-y-6">
-      <section class="glassmorph p-5">
-        <h2 class="text-2xl font-bold mb-4">📞 Emergency Hotlines</h2>
-        <ul class="list-disc pl-6 space-y-1">
-          <li><strong>911</strong> – National Emergency</li>
-          <li><strong>143</strong> – Philippine Red Cross</li>
-          <li><strong>(02) 894-26843</strong> – PNP</li>
-          <li><strong>(02) 8722-0650</strong> – Bureau of Fire Protection</li>
-          <li><strong>117</strong> – NDRRMC</li>
-        </ul>
-      </section>
+<body>
 
-      <section class="glassmorph p-5">
-        <h2 class="text-2xl font-bold mb-4">🏥 Nearest Clinics & Hospitals</h2>
-        <label class="block mb-2 text-sm font-medium">Choose your location:</label>
-        <select id="locationSelect" class="w-full p-2 border rounded mb-4 dark:bg-slate-800 dark:text-white">
-          <option value="manila">Manila</option>
-          <option value="cebu">Cebu</option>
-          <option value="davao">Davao</option>
-          <option value="baguio">Baguio</option>
-          <option value="iloilo">Iloilo</option>
-        </select>
-        <iframe id="mapFrame" class="w-full h-64 rounded border" loading="lazy" src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
-      </section>
-    </div>
+<header class="text-center py-6">
+  <h1 class="text-3xl font-bold text-cyan-400">PH Emergency Finder</h1>
+</header>
 
-    <div class="space-y-6">
-      <section class="glassmorph p-5">
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-xl font-bold flex items-center gap-2"><img src="https://upload.wikimedia.org/wikipedia/commons/7/77/MMDA_Logo.png" alt="MMDA Logo" class="h-6 w-6">MMDA Latest Tweet</h2>
-          <a href="https://twitter.com/MMDA" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
-        </div>
-        <a class="twitter-timeline" data-tweet-limit="1" href="https://twitter.com/MMDA?ref_src=twsrc%5Etfw">Tweets by MMDA</a>
-      </section>
+<main class="p-6 max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
 
-      <section class="glassmorph p-5">
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-xl font-bold flex items-center gap-2"><img src="https://en.wikipedia.org/wiki/File:NDRRMC_logo.svg#/media/File:NDRRMC_logo.svg" alt="NDRRMC Logo" class="h-6 w-6">NDRRMC Latest Tweet</h2>
-          <a href="https://twitter.com/NDRRMC_OpCen" target="_blank" class="text-blue-600 text-sm hover:underline">Visit</a>
-        </div>
-        <a class="twitter-timeline" data-tweet-limit="1" href="https://upload.wikimedia.org/wikipedia/en/e/e4/NDRRMC_logo.svg">Tweets by NDRRMC_OpCen</a>
-      </section>
+  <section class="glass p-5 float">
+    <h2 class="text-xl text-cyan-300 mb-3">Hotlines</h2>
+    <ul class="text-sm space-y-1">
+      <li>911 - Emergency</li>
+      <li>143 - Red Cross</li>
+      <li>117 - NDRRMC</li>
+    </ul>
+  </section>
 
-      <section class="glassmorph p-5">
-        <h2 class="text-2xl font-bold mb-4">🧠 Disaster Preparedness</h2>
-        <ul class="list-disc pl-6 space-y-2 text-sm">
-          <li><strong>Earthquake:</strong> Drop, Cover, and Hold. Stay away from windows.</li>
-          <li><strong>Flood:</strong> Move to higher ground immediately. Avoid walking/driving through floodwaters.</li>
-          <li><strong>Fire:</strong> Stop, Drop, and Roll if clothes catch fire. Exit building calmly.</li>
-          <li><strong>Typhoon:</strong> Secure loose items, stock food/water, and monitor weather alerts.</li>
-        </ul>
-      </section>
+  <section class="glass p-5 float">
+    <h2 class="text-xl text-cyan-300 mb-3">Nearby Hospitals</h2>
+    <iframe id="mapFrame" class="w-full h-64 rounded"
+      src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
+  </section>
 
-      <section class="glassmorph p-5">
-        <h2 class="text-2xl font-bold mb-4">📄 Additional Resources</h2>
-       
-        <ul class="list-disc pl-6 text-blue-600 text-sm">
-          <li><a href="https://lga.gov.ph/uploads/publication/attachments/1590478478.pdf" class="hover:underline">Disaster Preparedness Manual</a></li>
-          <li><a href="https://fo9.dswd.gov.ph/wp-content/uploads/2024/07/DRMD-POSTER-SPECS.pdf" class="hover:underline">Prepare your Go Bag</a></li>
-        </ul>
-      </section>
-    </div>
-  </main>
+</main>
 
-  <footer class="text-center text-sm text-slate-800 dark:text-slate-200 py-6 mt-10">
-    Made with ☕ by G | A free community resource | 🇵🇭 Stay safe, stay prepared.
-  </footer>
+<!-- JARVIS PANEL -->
+<div class="fixed bottom-24 right-6 w-80 glass p-4">
+  <div class="text-xs text-cyan-300 mb-1">JARVIS SYSTEM</div>
 
-  <script>
-    function setBackgroundByTime() {
-      const hour = new Date().getHours();
-      const body = document.body;
-      if (document.documentElement.classList.contains('dark')) return;
-      if (hour >= 5 && hour < 8) {
-        body.style.background = 'linear-gradient(to bottom right, #cbd5e1, #f1f5f9)';
-      } else if (hour >= 8 && hour < 12) {
-        body.style.background = 'linear-gradient(to bottom right, #bfdbfe, #e0f2fe)';
-      } else if (hour >= 12 && hour < 15) {
-        body.style.background = 'linear-gradient(to bottom right, #93c5fd, #bae6fd)';
-      } else if (hour >= 15 && hour < 18) {
-        body.style.background = 'linear-gradient(to bottom right, #60a5fa, #93c5fd)';
-      } else if (hour >= 18 && hour < 20) {
-        body.style.background = 'linear-gradient(to bottom right, #3b82f6, #1e40af)';
-      } else {
-        body.style.background = 'linear-gradient(to bottom right, #1e3a8a, #0f172a)';
-      }
+  <div id="output" class="text-sm text-slate-300 min-h-[60px] typing">
+    Initializing...
+  </div>
+
+  <div id="wave" class="wave mt-3 hidden">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ORB BUTTON -->
+<div class="fixed bottom-6 right-6 flex flex-col items-center gap-2">
+  <div id="orb" onclick="startListening()"></div>
+  <span class="text-xs text-slate-400">Tap to speak</span>
+</div>
+
+<script>
+const output = document.getElementById("output");
+const wave = document.getElementById("wave");
+
+/* Speak */
+function speak(text){
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.rate = 1;
+  msg.pitch = 1.1;
+  window.speechSynthesis.speak(msg);
+}
+
+/* Typing effect */
+function typeText(text){
+  output.innerHTML = "";
+  let i = 0;
+
+  function typing(){
+    if(i < text.length){
+      output.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, 20);
     }
+  }
+  typing();
+}
 
-    document.addEventListener("DOMContentLoaded", () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            const mapSrc = `https://www.google.com/maps?q=hospitals+near+${latitude},${longitude}&output=embed`;
-            document.getElementById("mapFrame").src = mapSrc;
-          },
-          (error) => {
-            console.warn("Geolocation permission denied or unavailable.");
-          }
-        );
-      }
+/* Start listening */
+function startListening(){
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "en-US";
 
-      const locSelect = document.getElementById("locationSelect");
-      if (locSelect) {
-        locSelect.addEventListener("change", function () {
-          const city = this.value;
-          const mapSrc = `https://www.google.com/maps?q=hospitals+near+${city}&output=embed`;
-          document.getElementById("mapFrame").src = mapSrc;
-        });
-      }
-      setBackgroundByTime();
+  wave.classList.remove("hidden");
+
+  recognition.start();
+
+  recognition.onresult = function(e){
+    wave.classList.add("hidden");
+
+    const command = e.results[0][0].transcript.toLowerCase();
+    typeText("You: " + command);
+
+    setTimeout(()=>handleCommand(command), 500);
+  };
+}
+
+/* Command logic */
+function handleCommand(cmd){
+  let res = "Command not recognized.";
+
+  if(cmd.includes("hospital") || cmd.includes("help")){
+    res = "Locating nearest hospitals.";
+
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const {latitude, longitude} = pos.coords;
+      document.getElementById("mapFrame").src =
+        `https://www.google.com/maps?q=hospitals+near+${latitude},${longitude}&output=embed`;
     });
+  }
 
-    function toggleMode() {
-      const root = document.documentElement;
-      const icon = document.getElementById("modeIcon");
-      root.classList.toggle("dark");
-      if (root.classList.contains("dark")) {
-        icon.classList.replace("ri-moon-fill", "ri-sun-fill");
-      } else {
-        icon.classList.replace("ri-sun-fill", "ri-moon-fill");
-      }
-    }
-  </script>
+  else if(cmd.includes("fire")){
+    res = "Fire detected protocol. Stay low and exit immediately.";
+  }
+
+  else if(cmd.includes("earthquake")){
+    res = "Drop, cover, and hold.";
+  }
+
+  else if(cmd.includes("hello")){
+    res = "Hello. Systems online. How can I assist?";
+  }
+
+  setTimeout(()=>{
+    typeText("Jarvis: " + res);
+    speak(res);
+  }, 600);
+}
+
+/* Boot message */
+window.onload = ()=>{
+  setTimeout(()=>{
+    typeText("Good day. All systems operational.");
+    speak("Good day. Systems are now online.");
+  }, 800);
+};
+</script>
+
 </body>
 </html>
