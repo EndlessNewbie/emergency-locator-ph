@@ -192,36 +192,75 @@ const feeds = [
  "https://www.gmanetwork.com/news/rss/nation/"
 ];
 
+const feedLog = getEl("feedLog");
+
 feeds.forEach(feedUrl=>{
 
   fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feedUrl))
   .then(res=>res.json())
   .then(data=>{
 
-    data.items.slice(0,5).forEach(item=>{
+    if(!data.items || data.items.length === 0){
+      if(feedLog) feedLog.innerText = "No feed data available";
+      return;
+    }
 
+    const latest = data.items.slice(0,5);
+
+    if(feedLog) feedLog.innerHTML = "";
+
+    latest.forEach(item=>{
+
+      const text = (item.title + " " + item.description).toLowerCase();
+
+      // SHOW FEED ITEM
+      if(feedLog){
+        const entry = document.createElement("div");
+        entry.innerText = "• " + item.title;
+        entry.className = "text-gray-300";
+        feedLog.appendChild(entry);
+      }
+
+      // ALERT LOGIC
       if(lastFeedItems.includes(item.guid)) return;
       lastFeedItems.push(item.guid);
 
-      const text = (item.title+" "+item.description).toLowerCase();
+      function checkFeedAlerts(text){
 
-      if(text.includes("accident")){
-        triggerAlert("Accident reported","warning");
-        jarvisSay("Accident reported nearby.");
-      }
+// broader detection = more activity
 
-      if(text.includes("flood")){
-        triggerAlert("Flood warning","critical");
-        jarvisSay("Flood warning detected.");
-      }
+if(text.includes("accident") || text.includes("collision") || text.includes("crash")){
+  triggerAlert("Road accident reported","warning");
+  jarvisSay("Accident reported nearby.");
+}
 
-      if(text.includes("earthquake")){
-        triggerAlert("Earthquake reported","critical");
-        jarvisSay("Earthquake detected.");
-      }
+if(text.includes("traffic") || text.includes("congestion")){
+  triggerAlert("Heavy traffic reported","warning");
+}
+
+if(text.includes("flood") || text.includes("rain")){
+  triggerAlert("Flood risk detected","critical");
+  jarvisSay("Flood risk detected in some areas.");
+}
+
+if(text.includes("earthquake") || text.includes("magnitude")){
+  triggerAlert("Earthquake detected","critical");
+  jarvisSay("Earthquake activity detected.");
+}
+
+if(text.includes("fire") || text.includes("blaze")){
+  triggerAlert("Fire incident reported","critical");
+  jarvisSay("Fire incident reported.");
+}
+
+}
 
     });
 
+  })
+  .catch(err=>{
+    console.error("Feed error:", err);
+    if(feedLog) feedLog.innerText = "Feed failed to load";
   });
 
 });
