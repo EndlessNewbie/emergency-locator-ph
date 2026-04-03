@@ -96,6 +96,29 @@ function handle(cmd){
   document.getElementById("output").innerText = res;
 }
 
+function updateWeather(){
+
+fetch("https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121&current_weather=true")
+.then(res=>res.json())
+.then(data=>{
+
+  const w = data.current_weather;
+
+  const html = `
+    <div>🌡 Temp: <b>${w.temperature}°C</b></div>
+    <div>💨 Wind: <b>${w.windspeed} km/h</b></div>
+    <div>🧭 Direction: <b>${w.winddirection}°</b></div>
+  `;
+
+  document.getElementById("weather").innerHTML = html;
+
+});
+}
+
+setInterval(updateWeather, 60000);
+updateWeather();
+
+
 /* TIPS */
 const tips = [
 "Stay alert",
