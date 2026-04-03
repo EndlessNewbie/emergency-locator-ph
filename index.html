@@ -1,5 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" class="transition duration-300">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PH Emergency Finder - Jarvis</title>
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet">
+
 <style>
-/* GRID OVERLAY */
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+  overflow-x: hidden;
+}
+
+  /* GRID OVERLAY */
 body::before {
   content: "";
   position: fixed;
@@ -42,8 +59,99 @@ body::before {
   box-shadow: 0 0 10px #22d3ee;
   animation: pulse 2s infinite;
 }
-</style>
 
+/* HUD Glow */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,255,255,0.2);
+  box-shadow: 0 0 20px rgba(0,255,255,0.15);
+  border-radius: 16px;
+}
+
+/* Floating hover */
+.float:hover {
+  transform: translateY(-5px);
+  transition: 0.3s;
+}
+
+/* Jarvis Orb */
+#orb {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #22d3ee, #0ea5e9);
+  box-shadow: 0 0 25px #22d3ee, 0 0 60px #0ea5e9;
+  animation: pulse 2s infinite;
+  cursor: pointer;
+}
+
+@keyframes pulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Wave bars */
+.wave {
+  display: flex;
+  gap: 3px;
+  height: 20px;
+  align-items: flex-end;
+}
+
+.wave span {
+  width: 3px;
+  background: #22d3ee;
+  animation: wave 1s infinite ease-in-out;
+}
+
+.wave span:nth-child(2){animation-delay:0.1s}
+.wave span:nth-child(3){animation-delay:0.2s}
+.wave span:nth-child(4){animation-delay:0.3s}
+.wave span:nth-child(5){animation-delay:0.4s}
+
+@keyframes wave {
+  0%,100% { height: 5px; }
+  50% { height: 20px; }
+}
+
+/* Typing effect */
+.typing::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="text-center py-6">
+  <h1 class="text-3xl font-bold text-cyan-400">PH Emergency Finder</h1>
+</header>
+
+<main class="p-6 max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+
+  <section class="glass p-5 float">
+    <h2 class="text-xl text-cyan-300 mb-3">Hotlines</h2>
+    <ul class="text-sm space-y-1">
+      <li>911 - Emergency</li>
+      <li>143 - Red Cross</li>
+      <li>117 - NDRRMC</li>
+    </ul>
+  </section>
+
+  <section class="glass p-5 float">
+    <h2 class="text-xl text-cyan-300 mb-3">Nearby Hospitals</h2>
+    <iframe id="mapFrame" class="w-full h-64 rounded"
+      src="https://www.google.com/maps?q=hospitals+near+manila&output=embed"></iframe>
+  </section>
+
+</main>
 <div class="scanline"></div>
 
 <!-- LEFT FLOATING PANEL -->
@@ -84,9 +192,112 @@ body::before {
     Monitoring conditions...
   </div>
 </div>
+<!-- JARVIS PANEL -->
+<div class="fixed bottom-24 right-6 w-80 glass p-4">
+  <div class="text-xs text-cyan-300 mb-1">JARVIS SYSTEM</div>
+
+  <div id="output" class="text-sm text-slate-300 min-h-[60px] typing">
+    Initializing...
+  </div>
+
+  <div id="wave" class="wave mt-3 hidden">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ORB BUTTON -->
+<div class="fixed bottom-6 right-6 flex flex-col items-center gap-2">
+  <div id="orb" onclick="startListening()"></div>
+  <span class="text-xs text-slate-400">Tap to speak</span>
+</div>
 
 <script>
-/* Dynamic tips */
+const output = document.getElementById("output");
+const wave = document.getElementById("wave");
+
+/* Speak */
+function speak(text){
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.rate = 1;
+  msg.pitch = 1.1;
+  window.speechSynthesis.speak(msg);
+}
+
+/* Typing effect */
+function typeText(text){
+  output.innerHTML = "";
+  let i = 0;
+
+  function typing(){
+    if(i < text.length){
+      output.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, 20);
+    }
+  }
+  typing();
+}
+
+/* Start listening */
+function startListening(){
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "en-US";
+
+  wave.classList.remove("hidden");
+
+  recognition.start();
+
+  recognition.onresult = function(e){
+    wave.classList.add("hidden");
+
+    const command = e.results[0][0].transcript.toLowerCase();
+    typeText("You: " + command);
+
+    setTimeout(()=>handleCommand(command), 500);
+  };
+}
+
+/* Command logic */
+function handleCommand(cmd){
+  let res = "Command not recognized.";
+
+  if(cmd.includes("hospital") || cmd.includes("help")){
+    res = "Locating nearest hospitals.";
+
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const {latitude, longitude} = pos.coords;
+      document.getElementById("mapFrame").src =
+        `https://www.google.com/maps?q=hospitals+near+${latitude},${longitude}&output=embed`;
+    });
+  }
+
+  else if(cmd.includes("fire")){
+    res = "Fire detected protocol. Stay low and exit immediately.";
+  }
+
+  else if(cmd.includes("earthquake")){
+    res = "Drop, cover, and hold.";
+  }
+
+  else if(cmd.includes("hello")){
+    res = "Hello. Systems online. How can I assist?";
+  }
+
+  setTimeout(()=>{
+    typeText("Jarvis: " + res);
+    speak(res);
+  }, 600);
+}
+
+/* Boot message */
+window.onload = ()=>{
+  setTimeout(()=>{
+    typeText("Good day. All systems operational.");
+    speak("Good day. Systems are now online.");
+  }, 800);
+};
+
+  /* Dynamic tips */
 const tipsEl = document.getElementById("tips");
 
 const tips = [
@@ -103,3 +314,6 @@ setInterval(()=>{
   tipIndex = (tipIndex + 1) % tips.length;
 }, 4000);
 </script>
+
+</body>
+</html>
