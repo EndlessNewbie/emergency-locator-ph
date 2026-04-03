@@ -101,7 +101,10 @@ function updateWeather(){
 fetch("https://api.open-meteo.com/v1/forecast?latitude=14.6&longitude=121&current_weather=true")
 .then(res=>res.json())
 .then(data=>{
-
+  if(w.windspeed > 30){
+  triggerAlert("Strong winds detected");
+  speak("Warning. Strong winds detected in your area");
+}
   const w = data.current_weather;
 
   const html = `
