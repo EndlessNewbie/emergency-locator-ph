@@ -12,11 +12,21 @@ function speak(text){
 
 /* ALERT */
 function triggerAlert(msg){
+
+  // popup
   const div = document.createElement("div");
   div.className = "alert";
   div.innerText = msg;
   document.body.appendChild(div);
   setTimeout(()=>div.remove(),4000);
+
+  // log panel
+  const log = getEl("alertLog");
+  if(log){
+    const entry = document.createElement("div");
+    entry.innerText = "• " + msg;
+    log.prepend(entry);
+  }
 }
 
 /* SAFE GET */
